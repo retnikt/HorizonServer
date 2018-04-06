@@ -1,5 +1,7 @@
 import http.server
 import json
+import shutil
+from datetime import datetime
 
 
 class Horizon(http.server.HTTPServer):
@@ -21,7 +23,11 @@ class Horizon(http.server.HTTPServer):
             self.create_config()
         except json.JSONDecodeError:
             print("Failed to read Horizon configuration.")
-            exit(1)
+            # copy broken configuration
+            shutil.copy2(f"{self.config_dir}/horizon.json",
+                         f"{self.config_dir}/horizon-broken-{datetime.now():%Y-%m-%d-%H-%M}.json")
+            # create new config
+            self.create_config()
 
     # noinspection PyBroadException
     def create_config(self):

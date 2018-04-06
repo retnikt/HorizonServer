@@ -1,5 +1,8 @@
 DEFAULT_CONFIG = """{
   "horizon": {
+    "logging": {
+      "level": "warning"
+    },
     "server": {
       "listen": "0.0.0.0",
       "port": 80

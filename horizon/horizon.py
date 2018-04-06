@@ -3,17 +3,20 @@ import json
 import shutil
 from datetime import datetime
 from horizon.default_config import DEFAULT_CONFIG
+import logging
 
 
 class Horizon(http.server.HTTPServer):
-    def __init__(self, config_dir):
+    def __init__(self, config_dir, log_level=logging.WARNING):
+        # default address to bind to
+        address = ("0.0.0.0", 80)
+
+        self.logger = logging.getLogger("Horizon@{address[0]}:{address[1]}")
+        self.logger.setLevel(log_level)
 
         self.config = {}
         self.config_dir = config_dir
         self.load_config()
-
-        # default address to bind to
-        address = ("0.0.0.0", 80)
         super(Horizon, self).__init__(address, HorizonHandler)
 
     def load_config(self):
@@ -23,7 +26,8 @@ class Horizon(http.server.HTTPServer):
         except FileNotFoundError:
             self.create_config()
         except json.JSONDecodeError:
-            print("Failed to read Horizon configuration.")
+            self.logger.error("Failed to read Horizon configuration.")
+
             # copy broken configuration
             shutil.copy2(f"{self.config_dir}/horizon.json",
                          f"{self.config_dir}/horizon-broken-{datetime.now():%Y-%m-%d-%H-%M}.json")
@@ -37,11 +41,11 @@ class Horizon(http.server.HTTPServer):
             with open(f"{self.config_dir}/horizon.json", 'w') as f:
                 f.write(DEFAULT_CONFIG)
         except OSError as e:
-            print(f"OSError {e.errno}: Could not create Horizon configuration file.")
+            self.logger.critical(f"OSError {e.errno}: Could not create Horizon configuration file.")
             exit(e.errno)
         except Exception as e:
-            # print error info
-            print(f"{type(e).__name__}: {' '.join([str(i) for i in e.args])}")
+            # log error info
+            self.logger.critical(f"{type(e).__name__}: {' '.join([str(i) for i in e.args])}")
             exit(1)
 
 

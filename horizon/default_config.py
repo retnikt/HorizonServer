@@ -1,4 +1,4 @@
-{
+DEFAULT_CONFIG = """{
   "horizon": {
     "server": {
       "listen": "0.0.0.0",
@@ -23,3 +23,4 @@
     }
   }
 }
+"""

@@ -2,6 +2,7 @@ import http.server
 import json
 import shutil
 from datetime import datetime
+from horizon.default_config import DEFAULT_CONFIG
 
 
 class Horizon(http.server.HTTPServer):
@@ -32,8 +33,9 @@ class Horizon(http.server.HTTPServer):
     # noinspection PyBroadException
     def create_config(self):
         try:
-            # create config file
-            open(f"{self.config_dir}/horizon.json", 'x').close()
+            # write defaults to config file
+            with open(f"{self.config_dir}/horizon.json", 'w') as f:
+                f.write(DEFAULT_CONFIG)
         except OSError as e:
             print(f"OSError {e.errno}: Could not create Horizon configuration file.")
             exit(e.errno)

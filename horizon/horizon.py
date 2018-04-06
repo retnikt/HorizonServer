@@ -7,12 +7,13 @@ import logging
 
 
 class Horizon(http.server.HTTPServer):
-    def __init__(self, config_dir, log_level=logging.WARNING):
+    def __init__(self, config_dir, log_level=logging.WARNING, log_file="/var/log/horizon"):
         # default address to bind to
         address = ("0.0.0.0", 80)
 
         self.logger = logging.getLogger("Horizon@{address[0]}:{address[1]}")
         self.logger.setLevel(log_level)
+        self.logger.addHandler(logging.FileHandler(log_file))
 
         self.config = {}
         self.config_dir = config_dir

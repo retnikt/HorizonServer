@@ -19,6 +19,9 @@ class Horizon(http.server.HTTPServer):
                 self.config = json.load(f)
         except FileNotFoundError:
             self.create_config()
+        except json.JSONDecodeError:
+            print("Failed to read Horizon configuration.")
+            exit(1)
 
     # noinspection PyBroadException
     def create_config(self):

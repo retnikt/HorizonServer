@@ -5,6 +5,7 @@ from datetime import datetime
 from horizon.default_config import DEFAULT_CONFIG
 from horizon.util import *
 import logging
+import ssl
 
 
 class Horizon(http.server.HTTPServer):
@@ -17,12 +18,17 @@ class Horizon(http.server.HTTPServer):
         self.logger.addHandler(logging.StreamHandler())
 
         # load config
-        self.config = AttrDict(json.loads(DEFAULT_CONFIG))
+        self.config = json.loads(DEFAULT_CONFIG)['horizon']
         self.config_dir = config_dir
-        self.config = AttrDict(self.load_config())
+        self.config = self.load_config()['horizon']
 
         # init super class
-        super(Horizon, self).__init__((self.config.server.listen, self.config.server.port), HorizonHandler)
+        super(Horizon, self).__init__((self.config['server']['listen'], self.config['server']['port']),
+                                      HorizonHandler)
+
+        if self.config.ssl.enabled:
+            self.socket = ssl.wrap_socket(self.socket, certfile=self.config['ssl']['cert-path'],
+                                          keyfile=self.config['ssl']['key-path'], server_side=True)
 
     def load_config(self):
         try:

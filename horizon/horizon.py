@@ -16,10 +16,13 @@ class Horizon(http.server.HTTPServer):
         # also log to stderr
         self.logger.addHandler(logging.StreamHandler())
 
+        # load config
         self.config = AttrDict(json.loads(DEFAULT_CONFIG))
         self.config_dir = config_dir
         self.config = AttrDict(self.load_config())
-        super(Horizon, self).__init__(self.config.server.address, HorizonHandler)
+
+        # init super class
+        super(Horizon, self).__init__((self.config.server.listen, self.config.server.port), HorizonHandler)
 
     def load_config(self):
         try:
